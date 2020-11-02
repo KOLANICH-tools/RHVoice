@@ -218,6 +218,9 @@ def create_base_env(user_vars):
         env.Append(CPPDEFINES=("NOMINMAX",1))
     env["libcore"]="RHVoice_core"
     env["libaudio"]="RHVoice_audio"
+    env["libio"]="RHVoice_io"
+    env["libfilter_manager"]="RHVoice_filter_manager"
+    env["libquestion_match"]="RHVoice_question_match"
     return env
 
 def display_help(env,vars):
@@ -246,6 +249,7 @@ def clone_base_env(base_env,user_vars,arch=None):
         env.MergeFlags("-pthread")
         env.AppendUnique(CXXFLAGS=["-std=c++11"])
         env.AppendUnique(CFLAGS=["-std=c11"])
+        env.AppendUnique(LINKFLAGS=["-Wl,-z,defs", "-Wl,--no-undefined"])
         if 'SOURCE_DATE_EPOCH' in os.environ:
             env['ENV']['SOURCE_DATE_EPOCH'] = os.environ['SOURCE_DATE_EPOCH']
     if sys.platform=="win32":
@@ -308,8 +312,11 @@ def configure(env):
     if env["PLATFORM"]=="win32":
         env.AppendUnique(LIBS="kernel32")
     conf.Finish()
-    env.Prepend(LIBPATH=os.path.join("#"+env["BUILDDIR"],"core"))
-    src_subdirs=["third-party", "pkg", "hts_engine", "core", "lib"]
+    thirdPartySharedLibs = ("third-party/hts_engine", "third-party/sonic")
+    beforeThirdParty = ("question_match", "io", "filter_manager")
+    afterThirdParty = ("pkg", "core","lib")
+    env.Prepend(LIBPATH=["#"+os.path.join(env["BUILDDIR"],l) for l in (beforeThirdParty + thirdPartySharedLibs  + afterThirdParty)])
+    src_subdirs=list(beforeThirdParty + thirdPartySharedLibs  + afterThirdParty)
     if env["dev"]:
         src_subdirs.append("utils")
     src_subdirs.append("audio")
@@ -323,6 +330,15 @@ def configure(env):
         src_subdirs.append("sapi")
     else:
         src_subdirs.append("include")
+
+    if "gcc" in env["TOOLS"]:
+        for el in env["LIBPATH"]:
+            if el:
+                if el[0] == "#":
+                    el = el[1:]
+                if el:
+                    env.AppendUnique(LINKFLAGS=["-Wl,-rpath-link," + el])  # GNU ld is a piece of shit
+
     return src_subdirs
 
 def build_binaries(base_env,user_vars,arch=None):
