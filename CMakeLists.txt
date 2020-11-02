@@ -19,7 +19,7 @@ project("RHVoice")
 
 set(customCMakeModulesDir "${CMAKE_SOURCE_DIR}/cmake")
 set(thirdPartyCMakeModulesDir "${customCMakeModulesDir}/thirdParty")
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${customCMakeModulesDir}" "${thirdPartyCMakeModulesDir}/sanitizers/cmake")
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${customCMakeModulesDir}" "${thirdPartyCMakeModulesDir}/sanitizers/cmake" "${thirdPartyCMakeModulesDir}/CPackRegistry")
 add_subdirectory("${thirdPartyCMakeModulesDir}/CCache")
 
 include(FindPkgConfig)
@@ -70,14 +70,24 @@ set("WITH_DATA" ON CACHE BOOL "Build packages with data. Long to compress. When 
 set("release" ON CACHE BOOL "Whether we are building a release")
 set("enable_xp_compat" ON CACHE BOOL "Target Windows XP")
 set("msi_repo" "" CACHE PATH "Where the msi packages are kept for reuse")
-set("servicedir" "${CMAKE_INSTALL_FULL_DATADIR}/dbus-1/services" CACHE PATH ".service file installation directory")
 
-set("data_dir" "${CMAKE_INSTALL_FULL_DATADIR}/RHVoice")
-set("languages_dir" "${data_dir}/languages")
-set("voices_dir" "${data_dir}/voices")
 
-set("config_dir" "${CMAKE_INSTALL_FULL_SYSCONFDIR}/RHVoice")
-set("common_doc_dir" "${CMAKE_INSTALL_FULL_DATAROOTDIR}/doc" CACHE PATH "Documentation directory path")
+if(WIN32)
+	set(CONFIG_PATH "${CMAKE_INSTALL_SYSCONFDIR}")
+	set("DATA_PATH" "${CMAKE_INSTALL_DATADIR}")
+	set("FULL_DATA_PATH" "${CMAKE_INSTALL_FULL_DATADIR}")
+	set("FULL_CONFIG_PATH" "${CMAKE_INSTALL_FULL_SYSCONFDIR}")
+else()
+	set(CONFIG_PATH "${CMAKE_INSTALL_SYSCONFDIR}/RHVoice")
+	set("DATA_PATH" "${CMAKE_INSTALL_DATADIR}/RHVoice")
+	set("FULL_DATA_PATH" "${CMAKE_INSTALL_FULL_DATADIR}/RHVoice")
+	set("FULL_CONFIG_PATH" "${CMAKE_INSTALL_FULL_SYSCONFDIR}/RHVoice")
+endif()
+
+
+set("languages_dir" "${DATA_PATH}/languages")
+set("voices_dir" "${DATA_PATH}/voices")
+set("common_doc_dir" "${CMAKE_INSTALL_DATAROOTDIR}/doc" CACHE PATH "Documentation directory path")
 
 set(SubpackagesDir "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set("licenses_dir" "${CMAKE_CURRENT_SOURCE_DIR}/licenses")
