@@ -22,6 +22,24 @@
 
 #include <cstdlib>
 
+#if defined(_WIN32)
+    #include <windows.h>
+    #include <shlwapi.h>
+    #include <filesystem> // PathRemoveFileSpecW (that is "deprecated" by M$) doesn't work in MinGW-W64, PathCchRemoveFileSpec is available only after Windows 8
+
+    HINSTANCE currentDll = NULL;
+
+    BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, [[maybe_unused]] LPVOID lpReserved ){
+        switch( fdwReason )
+        {
+            case DLL_PROCESS_ATTACH:
+                currentDll = hinstDLL;
+            break;
+        }
+        return TRUE;
+    }
+#endif
+
 namespace
 {
   const std::string tag("engine");
@@ -30,13 +48,22 @@ namespace
 namespace RHVoice
 {
   engine::init_params::init_params():
-    data_path(DATA_PATH),
-    config_path(CONFIG_PATH),
     logger(new event_logger)
   {
     PathCharT* data_path_env;
     PathCharT* config_path_env;
-    data_path_env = ourPathGetenv("RHVOICE_DATA_PATH");
+    #if defined(_WIN32)
+    {
+        wchar_t dllPathS[MAX_PATH];
+        GetModuleFileNameW(currentDll, dllPathS, MAX_PATH);
+        std::filesystem::path dllPath(dllPathS);
+        data_path = PathT(dllPath.parent_path());
+        config_path = PathT(dllPath.parent_path());
+        data_path += DATA_PATH;
+        config_path += CONFIG_PATH;
+    }
+    #endif
+    PathCharT* data_path_env = ourPathGetenv("RHVOICE_DATA_PATH");
     if (data_path_env) data_path = data_path_env;
     config_path_env = ourPathGetenv("RHVOICE_CONFIG_PATH");
     if (config_path_env) config_path = config_path_env;
