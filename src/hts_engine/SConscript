@@ -19,4 +19,5 @@ local_env=env.Clone()
 local_env["liblevel"]=0
 src=Glob("HTS_*.c")
 libhts_engine=local_env.BuildLibrary("hts_engine",src)
+local_env.Append(CPPDEFINES=["HTS_EXPORTS=1"])
 Export("libhts_engine")
