@@ -23,6 +23,7 @@
 #include <iterator>
 #include <stdexcept>
 
+#include "api.h"
 #include "engine.hpp"
 #include "voice_profile.hpp"
 #include "utterance.hpp"
@@ -64,7 +65,7 @@ namespace RHVoice
       sentence_position_single
     };
 
-  class sentence
+  class RHVOICE_CORE_API sentence
   {
   private:
     enum command_type
@@ -106,7 +107,7 @@ namespace RHVoice
       }
     };
 
-    class append_token: public command<command_token>
+    class RHVOICE_CORE_API append_token: public command<command_token>
     {
     public:
       explicit append_token(const text_token& prev_token,const text_token& token):
@@ -128,7 +129,7 @@ namespace RHVoice
       bool eos{false};
     };
 
-    class append_chars: public append_token
+    class RHVOICE_CORE_API append_chars: public append_token
     {
     public:
       explicit append_chars(const text_token& prev_token,const text_token& token):
@@ -143,7 +144,7 @@ namespace RHVoice
       verbosity_t verbosity_level;
     };
 
-    class append_key: public append_token
+    class RHVOICE_CORE_API append_key: public append_token
     {
     public:
       explicit append_key(const text_token& prev_token,const text_token& token):
@@ -154,7 +155,7 @@ namespace RHVoice
       void execute(utterance& u) const;
     };
 
-    class append_emoji: public append_token
+    class RHVOICE_CORE_API append_emoji: public append_token
     {
     public:
       explicit append_emoji(const text_token& prev_token,const text_token& token):
@@ -315,7 +316,7 @@ namespace RHVoice
     void apply_language_processing(utterance& u) const;
   };
 
-  class document
+  class RHVOICE_CORE_API document
   {
   public:
     speech_params speech_settings;
