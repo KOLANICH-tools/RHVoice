@@ -22,6 +22,7 @@ set(thirdPartyCMakeModulesDir "${customCMakeModulesDir}/thirdParty")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${customCMakeModulesDir}" "${thirdPartyCMakeModulesDir}/sanitizers/cmake")
 add_subdirectory("${thirdPartyCMakeModulesDir}/CCache")
 
+include(CheckIncludeFile)
 include(FindPkgConfig)
 include(GNUInstallDirs)
 include(CPackComponent)
