@@ -23,8 +23,13 @@ else()
 	set(SRCFILES2 "")
 endif()
 
-add_library(libhts_engine SHARED "${SRCFILES1}" "${SRCFILES2}")
-target_compile_definitions(libhts_engine PRIVATE "-DAUDIO_PLAY_NONE" "-DHTS_EXPORTS")
+if(ENABLE_SHARED_HTS_AND_MAGE)
+	add_library(libhts_engine SHARED "${SRCFILES1}" "${SRCFILES2}")
+	target_compile_definitions(libhts_engine PRIVATE "-DAUDIO_PLAY_NONE")
+else()
+	add_library(libhts_engine OBJECT "${SRCFILES1}" "${SRCFILES2}")
+endif()
+target_compile_definitions(libhts_engine PRIVATE "-DHTS_EXPORTS")
 
 set(LIBHTS_VERSION_MAJOR 1)
 set(LIBHTS_VERSION_MINOR 06)
@@ -51,11 +56,13 @@ cpack_add_component(libhts_engine
 	DESCRIPTION "hts_engine is software to synthesize speech waveform from HMMs trained by the HMM-based speech synthesis system (HTS). This software is released under the Modified BSD license. This component contains a modified version of HTS engine, for the modifications see the RHVoice GitHub repo."
 	GROUP "third_party_libs"
 )
-list(APPEND CPACK_COMPONENTS_ALL "libhts_engine")
+if(ENABLE_SHARED_HTS_AND_MAGE)
+	list(APPEND CPACK_COMPONENTS_ALL "libhts_engine")
 
-install(TARGETS "libhts_engine"
-	LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-	COMPONENT "libhts_engine"
-)
-set("CPACK_DEBIAN_LIBHTS_ENGINE_PACKAGE_NAME" "libhtsengine")
-pass_through_cpack_vars()
+	install(TARGETS "libhts_engine"
+		LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+		COMPONENT "libhts_engine"
+	)
+	set("CPACK_DEBIAN_LIBHTS_ENGINE_PACKAGE_NAME" "libhtsengine")
+	pass_through_cpack_vars()
+endif()

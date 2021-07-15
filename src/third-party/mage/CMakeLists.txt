@@ -15,7 +15,11 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 file(GLOB_RECURSE SRCFILES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-add_library(libmage SHARED "${SRCFILES}")
+if(ENABLE_SHARED_HTS_AND_MAGE)
+	add_library(libmage SHARED "${SRCFILES}")
+else()
+	add_library(libmage OBJECT "${SRCFILES}")
+endif()
 
 set(LIBMAGE_VERSION_MAJOR "2")
 set(LIBMAGE_VERSION_MINOR "0")
@@ -40,13 +44,15 @@ cpack_add_component(libmage
 	DESCRIPTION "libmage is a GNU GPL-licensed platform for performative HMM-based speech synthesis. Improves speech quality compared to just hts_engine This component may contain a modified version of libmage, for the modifications see the RHVoice GitHub repo. The original resides here: https://github.com/numediart/mage"
 	GROUP "third_party_libs"
 )
-list(APPEND CPACK_COMPONENTS_ALL "libmage")
 
+if(ENABLE_SHARED_HTS_AND_MAGE)
+	list(APPEND CPACK_COMPONENTS_ALL "libmage")
 
-install(TARGETS "libmage"
-	COMPONENT "libmage"
-	LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-)
-set("CPACK_DEBIAN_LIBMAGE_PACKAGE_NAME" "libmage")
-set(CPACK_DEBIAN_LIBMAGE_PACKAGE_DEPENDS "${CPACK_DEBIAN_LIBHTS_ENGINE_PACKAGE_NAME}")
-pass_through_cpack_vars()
+	install(TARGETS "libmage"
+		COMPONENT "libmage"
+		LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+	)
+	set("CPACK_DEBIAN_LIBMAGE_PACKAGE_NAME" "libmage")
+	set(CPACK_DEBIAN_LIBMAGE_PACKAGE_DEPENDS "${CPACK_DEBIAN_LIBHTS_ENGINE_PACKAGE_NAME}")
+	pass_through_cpack_vars()
+endif()
