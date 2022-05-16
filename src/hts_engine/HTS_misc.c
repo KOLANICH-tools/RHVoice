@@ -301,7 +301,7 @@ static size_t HTS_fread(void *buf, size_t size, size_t n, HTS_File * fp)
 }
 
 /* HTS_byte_swap: byte swap */
-static void HTS_byte_swap(void *p, size_t size, size_t block)
+static void HTS_byte_swap(const void *p, size_t size, size_t block)
 {
    char *q, tmp;
    size_t i, j;
